@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Sinon — Anime Verse 🌸</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Orbitron:wght@500;900&family=Yuji+Syuku&display=swap" rel="stylesheet" />
+
+<style>
+/* =========================================================
+   RESET & VARIABLES
+   ========================================================= */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --sakura: #e8d8ff;
+  --pink: #ec4899;
+  --purple: #7c3aed;
+  --maroon: #8b1e2d;
+  --navy: #1e3a8a;
+  --gold: #d4af37;
+  --cyan: #06b6d4;
+  --bg-1: #120a1f;
+  --text: #f5edff;
+  --text-dim: #b8a8d0;
+  --gradient: linear-gradient(135deg, #8b1e2d, #ec4899, #7c3aed);
+  --gradient-warm: linear-gradient(135deg, #e8d8ff, #ec4899, #8b1e2d);
+  --card-bg: rgba(30, 20, 45, 0.55);
+  --card-border: rgba(139, 30, 45, 0.35);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg-1);
+  color: var(--text);
+  overflow-x: hidden;
+  min-height: 100vh;
+  cursor: none;
+  position: relative;
+}
+
+/* =========================================================
+   BACKGROUND LAYERS
+   ========================================================= */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(236, 72, 153, 0.22), transparent 45%),
+    radial-gradient(circle at 85% 30%, rgba(124, 58, 237, 0.2), transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(139, 30, 45, 0.15), transparent 50%);
+  z-index: -3;
+  animation: auroraShift 14s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes auroraShift {
+  0%   { transform: translate(0, 0) scale(1); filter: hue-rotate(0deg); }
+  100% { transform: translate(-20px, -30px) scale(1.1); filter: hue-rotate(20deg); }
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(236, 72, 153, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.035) 1px, transparent 1px);
+  background-size: 60px 60px;
+  z-index: -2;
+  pointer-events: none;
+  mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 75%);
+}
+
+#sakura {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  top: -30px;
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle at 30% 30%, #ffd9e2, #ffb7c5);
+  border-radius: 50% 0 50% 0;
+  opacity: 0.75;
+  will-change: transform;
+  animation: petalFall linear infinite;
+  box-shadow: 0 0 8px rgba(255, 183, 197, 0.5);
+}
+@keyframes petalFall {
+  0%   { transform: translate(0, -30px) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.75; }
+  90%  { opacity: 0.75; }
+  100% { transform: translate(var(--drift, 60px), 105vh) rotate(720deg); opacity: 0; }
+}
+
+.jp-char {
+  position: absolute;
+  font-family: 'Yuji Syuku', serif;
+  font-size: 3rem;
+  color: rgba(236, 72, 153, 0.08);
+  font-weight: 700;
+  pointer-events: none;
+  animation: jpFloat 20s ease-in-out infinite;
+  user-select: none;
+}
+@keyframes jpFloat {
+  0%, 100% { transform: translateY(0) rotate(-5deg); opacity: 0.08; }
+  50%      { transform: translateY(-30px) rotate(5deg); opacity: 0.15; }
+}
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-1);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s, visibility 0.8s;
+}
+#loader.hidden { opacity: 0; visibility: hidden; }
+.loader-sakura {
+  font-size: 4rem;
+  animation: spinPulse 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px var(--pink));
+}
+@keyframes spinPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50%      { transform: scale(1.3) rotate(180deg); }
+}
+.loader-text {
+  margin-top: 24px;
+  font-family: 'Yuji Syuku', serif;
+  letter-spacing: 8px;
+  font-size: 1rem;
+  color: var(--sakura);
+  text-shadow: 0 0 12px var(--pink);
+  animation: pulse 1.5s ease infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+/* =========================================================
+   CURSOR
+   ========================================================= */
+.cursor-dot, .cursor-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10000;
+  border-radius: 50%;
+  top: 0; left: 0;
+  transform: translate(-50%, -50%);
+}
+.cursor-dot {
+  width: 6px; height: 6px;
+  background: var(--sakura);
+  box-shadow: 0 0 10px var(--pink);
+}
+.cursor-ring {
+  width: 38px; height: 38px;
+  border: 1.5px solid var(--pink);
+  transition: width 0.25s, height 0.25s, border-color 0.25s, background 0.25s;
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.7);
+}
+.cursor-ring.hover {
+  width: 60px; height: 60px;
+  background: rgba(236, 72, 153, 0.15);
+  border-color: var(--cyan);
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.8);
+}
+
+/* =========================================================
+   KARAKTER ANIME
+   ========================================================= */
+.anime-stage {
+  position: fixed;
+  right: 3vw;
+  bottom: 10px;
+  z-index: 5;
+  pointer-events: auto;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.anime-stage.dragging { transition: none; }
+.anime-stage.hidden-in-scroll {
+  transform: translateY(70%) scale(0.85);
+  opacity: 0.4;
+}
+
+.anime-char {
+  width: 200px;
+  height: auto;
+  filter: drop-shadow(0 8px 24px rgba(236, 72, 153, 0.55))
+          drop-shadow(0 0 40px rgba(139, 30, 45, 0.35));
+  animation: charFloat 3.5s ease-in-out infinite;
+  transform-origin: center bottom;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+  image-rendering: -webkit-optimize-contrast;
+}
+.anime-stage.dragging .anime-char { cursor: grabbing; }
+
+@keyframes charFloat {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50%      { transform: translateY(-12px) rotate(1.5deg); }
+}
+
+.anime-stage::before {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 20px;
+  background: radial-gradient(ellipse, rgba(236, 72, 153, 0.5), transparent 70%);
+  border-radius: 50%;
+  filter: blur(6px);
+  animation: shadowPulse 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shadowPulse {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.6; }
+  50%      { transform: translateX(-50%) scale(0.8); opacity: 0.3; }
+}
+
+.speech-bubble {
+  position: absolute;
+  top: -20px;
+  right: 100px;
+  background: #fff;
+  border: 2px solid var(--pink);
+  color: #2a1a3a;
+  padding: 10px 18px;
+  border-radius: 20px 20px 4px 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(10px) scale(0.7);
+  transition: opacity 0.3s, transform 0.3s;
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+  pointer-events: none;
+  z-index: 6;
+}
+.speech-bubble.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px; right: 20px;
+  width: 0; height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid var(--pink);
+}
+
+/* =========================================================
+   NAVBAR
+   ========================================================= */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 18px 6vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: rgba(18, 10, 31, 0.55);
+  border-bottom: 1px solid rgba(236, 72, 153, 0.15);
+  animation: slideDown 0.8s ease both;
+}
+.logo {
+  font-family: 'Yuji Syuku', serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: 3px;
+  color: var(--sakura);
+  text-shadow: 0 0 20px var(--pink);
+}
+.logo span {
+  background: var(--gradient-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.nav-links { display: flex; gap: 2rem; list-style: none; }
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  position: relative;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -4px;
+  width: 0; height: 2px;
+  background: var(--gradient-warm);
+  box-shadow: 0 0 10px var(--pink);
+  transition: width 0.3s;
+}
+.nav-links a:hover {
+  color: #fff;
+  text-shadow: 0 0 14px var(--pink);
+}
+.nav-links a:hover::after { width: 100%; }
+
+/* Music toggle button */
+.music-btn {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(236, 72, 153, 0.5);
+  background: rgba(236, 72, 153, 0.1);
+  color: var(--sakura);
+  cursor: none;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.music-btn:hover {
+  background: rgba(236, 72, 153, 0.25);
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.6);
+  transform: scale(1.1);
+}
+.music-btn.playing {
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 25px rgba(212, 175, 55, 0.7);
+  animation: musicPulse 1s ease-in-out infinite;
+}
+@keyframes musicPulse {
+  0%, 100% { box-shadow: 0 0 25px rgba(212, 175, 55, 0.7); }
+  50%      { box-shadow: 0 0 40px rgba(212, 175, 55, 1); }
+}
+
+/* Equalizer bars */
+.eq-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+}
+.eq-bars span {
+  width: 3px;
+  background: currentColor;
+  border-radius: 2px;
+  animation: eq 0.9s ease-in-out infinite;
+}
+.eq-bars span:nth-child(1) { height: 60%; animation-delay: 0s; }
+.eq-bars span:nth-child(2) { height: 100%; animation-delay: 0.2s; }
+.eq-bars span:nth-child(3) { height: 70%; animation-delay: 0.4s; }
+.eq-bars span:nth-child(4) { height: 90%; animation-delay: 0.1s; }
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.4); }
+  50%      { transform: scaleY(1); }
+}
+.music-btn:not(.playing) .eq-bars span { animation-play-state: paused; transform: scaleY(0.3); }
+
+/* =========================================================
+   HERO
+   ========================================================= */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 6vw 60px;
+  position: relative;
+}
+.hero-content { max-width: 800px; }
+
+.greeting {
+  color: var(--cyan);
+  font-family: 'Yuji Syuku', serif;
+  font-size: 1rem;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease 0.2s forwards;
+  text-shadow: 0 0 16px var(--cyan);
+}
+
+.title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(2.5rem, 9vw, 6rem);
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -1px;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease 0.4s forwards;
+  text-shadow: 0 0 40px rgba(236, 72, 153, 0.5);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #e8d8ff, #ec4899, #8b1e2d, #ec4899, #e8d8ff);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientShift 5s ease infinite;
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.title .star {
+  display: inline-block;
+  font-size: 0.6em;
+  vertical-align: super;
+  color: var(--gold);
+  text-shadow: 0 0 20px var(--gold);
+  animation: starSpin 3s ease-in-out infinite;
+}
+@keyframes starSpin {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50%      { transform: rotate(180deg) scale(1.2); }
+}
+
+.subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: var(--text-dim);
+  min-height: 2rem;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease 0.6s forwards;
+}
+.cursor-blink {
+  color: var(--pink);
+  animation: blink 1s steps(2) infinite;
+  font-weight: 300;
+  text-shadow: 0 0 10px var(--pink);
+}
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cta-btn {
+  position: relative;
+  padding: 16px 40px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #fff;
+  background: transparent;
+  border: 2px solid var(--pink);
+  border-radius: 50px;
+  cursor: none;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  box-shadow: 0 0 25px rgba(236, 72, 153, 0.5),
+              inset 0 0 20px rgba(236, 72, 153, 0.15);
+  opacity: 0;
+  animation: fadeInUp 0.8s ease 0.8s forwards;
+}
+.cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-warm);
+  transform: translateX(-101%);
+  transition: transform 0.4s;
+  z-index: -1;
+}
+.cta-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 50px rgba(236, 72, 153, 0.9),
+              0 0 90px rgba(124, 58, 237, 0.6);
+  border-color: var(--sakura);
+}
+.cta-btn:hover::before { transform: translateX(0); }
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px; height: 44px;
+  border: 2px solid rgba(236, 72, 153, 0.5);
+  border-radius: 20px;
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+}
+.scroll-indicator span {
+  width: 4px; height: 8px;
+  background: var(--pink);
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--pink);
+  animation: scrollDot 1.8s ease infinite;
+}
+@keyframes scrollDot {
+  0%   { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+
+/* =========================================================
+   SECTIONS
+   ========================================================= */
+section { padding: 100px 6vw; position: relative; }
+
+.section-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 900;
+  text-align: center;
+  margin-bottom: 2rem;
+  letter-spacing: 2px;
+  text-shadow: 0 0 30px rgba(236, 72, 153, 0.5);
+}
+.section-title .jp {
+  display: block;
+  font-family: 'Yuji Syuku', serif;
+  font-size: 0.85rem;
+  color: var(--sakura);
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+  opacity: 0.7;
+}
+
+.about-text {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  line-height: 1.9;
+}
+
+/* =========================================================
+   MENU CARDS
+   ========================================================= */
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  max-width: 1180px;
+  margin: 3rem auto 0;
+  perspective: 1200px;
+}
+
+.menu-card {
+  position: relative;
+  padding: 34px 26px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  cursor: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+              border-color 0.4s, box-shadow 0.4s;
+  opacity: 0;
+  animation: cardReveal 0.7s ease forwards;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.menu-card:nth-child(1) { animation-delay: 0.10s; }
+.menu-card:nth-child(2) { animation-delay: 0.20s; }
+.menu-card:nth-child(3) { animation-delay: 0.30s; }
+.menu-card:nth-child(4) { animation-delay: 0.40s; }
+.menu-card:nth-child(5) { animation-delay: 0.50s; }
+.menu-card:nth-child(6) { animation-delay: 0.60s; }
+.menu-card:nth-child(7) { animation-delay: 0.70s; }
+
+@keyframes cardReveal {
+  from { opacity: 0; transform: translateY(40px) rotateX(-15deg); }
+  to   { opacity: 1; transform: translateY(0) rotateX(0); }
+}
+
+.menu-card:hover {
+  border-color: rgba(236, 72, 153, 0.7);
+  box-shadow: 0 30px 60px rgba(236, 72, 153, 0.35),
+              0 0 60px rgba(124, 58, 237, 0.25);
+}
+.menu-card::after {
+  content: '';
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 24px; height: 24px;
+  border-top: 2px solid var(--pink);
+  border-right: 2px solid var(--pink);
+  opacity: 0.5;
+  transition: all 0.3s;
+}
+.menu-card:hover::after {
+  top: 6px; right: 6px;
+  opacity: 1;
+  box-shadow: 0 0 10px var(--pink);
+}
+.card-glow {
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.35), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.5s;
+  pointer-events: none;
+}
+.menu-card:hover .card-glow { opacity: 1; }
+
+.card-icon {
+  font-size: 2.8rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+  transition: transform 0.4s;
+  filter: drop-shadow(0 0 10px rgba(236, 72, 153, 0.7));
+}
+.menu-card:hover .card-icon {
+  transform: scale(1.25) rotate(-10deg);
+}
+.menu-card h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.05rem;
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.menu-card p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Card arrow untuk link keluar */
+.card-arrow {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  font-size: 1.2rem;
+  color: var(--pink);
+  opacity: 0.5;
+  transition: all 0.3s;
+}
+.menu-card:hover .card-arrow {
+  opacity: 1;
+  transform: translate(4px, -4px);
+  text-shadow: 0 0 12px var(--pink);
+}
+
+/* Badge status di card */
+.card-status-badge {
+  display: inline-block;
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.card-status-badge.progress {
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+}
+.card-status-badge.live {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  color: #4ade80;
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 5, 20, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s, visibility 0.35s;
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: 82vh;
+  overflow-y: auto;
+  padding: 42px 38px;
+  background: linear-gradient(160deg, rgba(35, 20, 55, 0.98), rgba(20, 10, 35, 0.98));
+  border: 2px solid rgba(236, 72, 153, 0.5);
+  border-radius: 24px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7),
+              0 0 80px rgba(236, 72, 153, 0.3);
+  transform: perspective(1200px) rotateX(-25deg) scale(0.8) translateY(40px);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s;
+}
+.modal-overlay.active .modal {
+  transform: perspective(1200px) rotateX(0) scale(1) translateY(0);
+  opacity: 1;
+}
+.modal::-webkit-scrollbar { width: 6px; }
+.modal::-webkit-scrollbar-thumb {
+  background: var(--gradient-warm);
+  border-radius: 10px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px; right: 16px;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(236, 72, 153, 0.5);
+  background: rgba(236, 72, 153, 0.1);
+  color: var(--text);
+  font-size: 1rem;
+  cursor: none;
+  transition: all 0.3s;
+  display: grid;
+  place-items: center;
+}
+.modal-close:hover {
+  background: var(--pink);
+  transform: rotate(180deg) scale(1.1);
+  box-shadow: 0 0 25px var(--pink);
+}
+
+.modal-body h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.7rem;
+  margin-bottom: 1rem;
+  background: var(--gradient-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 1px;
+}
+.modal-body h3 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1rem;
+  margin: 1.4rem 0 0.7rem;
+  color: var(--cyan);
+  letter-spacing: 1px;
+  text-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+}
+.modal-body p {
+  color: var(--text-dim);
+  line-height: 1.75;
+  font-size: 0.95rem;
+  margin-bottom: 0.7rem;
+}
+.modal-body ul { list-style: none; padding-left: 0; }
+.modal-body li {
+  color: var(--text-dim);
+  padding: 9px 0 9px 26px;
+  position: relative;
+  font-size: 0.95rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.modal-body li::before {
+  content: '✿';
+  position: absolute;
+  left: 4px;
+  color: var(--sakura);
+  text-shadow: 0 0 10px var(--pink);
+}
+.modal-body a.link {
+  display: inline-block;
+  margin-top: 0.6rem;
+  color: var(--cyan);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(6, 182, 212, 0.5);
+  transition: all 0.3s;
+}
+.modal-body a.link:hover {
+  color: var(--sakura);
+  text-shadow: 0 0 12px var(--pink);
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+.footer {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(236, 72, 153, 0.15);
+  margin-top: 60px;
+  letter-spacing: 1px;
+}
+.footer .jp {
+  font-family: 'Yuji Syuku', serif;
+  color: var(--sakura);
+  letter-spacing: 4px;
+}
+
+/* =========================================================
+   KEYFRAMES & RESPONSIVE
+   ========================================================= */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .anime-char { width: 150px; }
+  .anime-stage { right: 2vw; }
+  .petal { width: 10px; height: 10px; }
+}
+@media (max-width: 640px) {
+  body { cursor: auto; }
+  .cursor-dot, .cursor-ring { display: none; }
+  .anime-char { width: 110px; }
+  .navbar { padding: 14px 5vw; }
+  .nav-links { gap: 1.2rem; }
+  .nav-links a { font-size: 0.85rem; }
+  .logo { font-size: 1.2rem; }
+  .modal { padding: 32px 22px; }
+  .modal-body h2 { font-size: 1.4rem; }
+  section { padding: 80px 5vw; }
+  .speech-bubble { font-size: 0.72rem; padding: 8px 12px; right: 80px; }
+  .jp-char { font-size: 1.8rem; }
+  .petal { animation-duration: 20s !important; }
+  .music-btn { width: 38px; height: 38px; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-sakura">🌸</div>
+  <p class="loader-text">読み込み中...</p>
+</div>
+
+<!-- CURSOR -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- SAKURA -->
+<div id="sakura"></div>
+
+<!-- ============ KARAKTER ANIME ============ -->
+<div class="anime-stage" id="animeStage">
+  <div class="speech-bubble" id="speechBubble">Halo! Aku Arisu ✨</div>
+  <img src="foto/karakter.png"
+       data-blink="foto/karakter-blink.png"
+       class="anime-char"
+       id="animeChar"
+       alt="Arisu Chibi">
+</div>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar">
+  <div class="logo">My<span>Sinon</span></div>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#menu">Menu</a></li>
+    </ul>
+    <button class="music-btn" id="musicBtn" title="Play / Pause BGM" aria-label="Toggle Music">
+      <span class="eq-bars">
+        <span></span><span></span><span></span><span></span>
+      </span>
+    </button>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section id="home" class="hero">
+  <div class="hero-content">
+    <p class="greeting">ようこそ — Welcome</p>
+    <h1 class="title">
+      My <span class="gradient-text">Sinon</span><span class="star">✦</span>
+    </h1>
+    <p class="subtitle">
+      <span id="typing"></span><span class="cursor-blink">|</span>
+    </p>
+    <button class="cta-btn" onclick="scrollToMenu()">JELAJAHI</button>
+  </div>
+  <div class="scroll-indicator"><span></span></div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about" class="about">
+  <h2 class="section-title">
+    <span class="jp">私について</span>
+    TENTANG AKU
+  </h2>
+  <p class="about-text">
+    Ini adalah ruang pribadi aku tempat aku menuangkan cerita, karya, dan hal-hal
+    yang aku suka. Dunia kecil yang terinspirasi dari anime, komik dan novel favorit aku 🌸✨
+  </p>
+</section>
+
+<!-- ============ MENU ============ -->
+<section id="menu" class="menu-section">
+  <h2 class="section-title">
+    <span class="jp">メニュー</span>
+    PILIH MENU
+  </h2>
+
+  <div class="menu-grid">
+    <!-- 1. PLATFORM → subdomain aplikasi -->
+    <a class="menu-card" href="https://aplikasi.my-sinon.my.id" target="_blank" rel="noopener">
+      <div class="card-icon">🚀</div>
+      <h3>PLATFORM</h3>
+      <p>Produk digital yang sedang dibangun</p>
+      <span class="card-status-badge progress">Yey :></span>
+      <span class="card-arrow">↗</span>
+      <div class="card-glow"></div>
+    </a>
+
+    <!-- 2. PROJEK → path /projek/ -->
+    <a class="menu-card" href="/projek/jek.html">
+      <div class="card-icon">💼</div>
+      <h3>PROJEK</h3>
+      <p>Karya & eksperimen yang sudah selesai</p>
+      <span class="card-status-badge live">✅</span>
+      <span class="card-arrow">↗</span>
+      <div class="card-glow"></div>
+    </a>
+
+    <!-- 3. BLOG → subdomain -->
+    <a class="menu-card" href="https://blog.my-sinon.my.id" target="_blank" rel="noopener">
+      <div class="card-icon">📝</div>
+      <h3>BLOG</h3>
+      <p>Event, foto, berita & cerita random</p>
+      <span class="card-arrow">↗</span>
+      <div class="card-glow"></div>
+    </a>
+
+    <!-- 4. KARYA → subdomain -->
+    <a class="menu-card" href="https://karya.my-sinon.my.id" target="_blank" rel="noopener">
+      <div class="card-icon">📚</div>
+      <h3>KARYA</h3>
+      <p>Komik, novel dan ilustari</p>
+      <span class="card-arrow">↗</span>
+      <div class="card-glow"></div>
+    </a>
+
+    <!-- 5. HOBI → subdomain -->
+    <a class="menu-card" href="https://hobi.my-sinon.my.id" target="_blank" rel="noopener">
+      <div class="card-icon">🌸</div>
+      <h3>HOBI</h3>
+      <p>Anime & aktivitas gabut</p>
+      <span class="card-arrow">↗</span>
+      <div class="card-glow"></div>
+    </a>
+
+    <!-- 6. CV → subdomain -->
+    <a class="menu-card" href="https://cv.my-sinon.my.id" target="_blank" rel="noopener">
+      <div class="card-icon">📄</div>
+      <h3>CV / RESUME</h3>
+      <p>Pengalaman, skill & pendidikan</p>
+      <span class="card-arrow">↗</span>
+      <div class="card-glow"></div>
+    </a>
+
+    <!-- 7. KONTAK → modal -->
+    <div class="menu-card tilt" data-modal="contact">
+      <div class="card-icon">📬</div>
+      <h3>KONTAK</h3>
+      <p>Mari terhubung & ngobrol</p>
+      <div class="card-glow"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <p class="jp">ありがとう ございます</p>
+  <p style="margin-top: 10px;">© 2026 My Sinon — my-sinon.my.id — Made with 💜🌸</p>
+</footer>
+
+<script>
+/* =========================================================
+   LOADER
+   ========================================================= */
+window.addEventListener('load', () => {
+  setTimeout(() => document.getElementById('loader').classList.add('hidden'), 900);
+});
+
+/* =========================================================
+   CUSTOM CURSOR
+   ========================================================= */
+(function initCursor() {
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+  });
+
+  function animRing() {
+    rx += (mx - rx) * 0.15;
+    ry += (my - ry) * 0.15;
+    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+    requestAnimationFrame(animRing);
+  }
+  animRing();
+
+  document.querySelectorAll('a, button, .menu-card, .anime-char, .modal-close')
+    .forEach(el => {
+      el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+    });
+})();
+
+/* =========================================================
+   SAKURA PETALS + JP CHARS
+   ========================================================= */
+(function initSakura() {
+  const container = document.getElementById('sakura');
+  const isMobile = window.innerWidth < 768;
+  const petalCount = isMobile ? 12 : 25;
+
+  for (let i = 0; i < petalCount; i++) {
+    const petal = document.createElement('div');
+    petal.className = 'petal';
+    petal.style.left = Math.random() * 100 + 'vw';
+    petal.style.animationDuration = (10 + Math.random() * 8) + 's';
+    petal.style.animationDelay = Math.random() * 10 + 's';
+    petal.style.setProperty('--drift', (Math.random() * 120 - 40) + 'px');
+    petal.style.transform = `rotate(${Math.random() * 360}deg)`;
+    if (Math.random() > 0.5) {
+      petal.style.background = 'radial-gradient(circle at 30% 30%, #e0d0ff, #a855f7)';
+    }
+    container.appendChild(petal);
+  }
+
+  const jpChars = ['桜', '夢', '愛', '光', '武', '忍', '星', '花', '心', '力'];
+  const jpCount = isMobile ? 4 : 8;
+  for (let i = 0; i < jpCount; i++) {
+    const el = document.createElement('div');
+    el.className = 'jp-char';
+    el.textContent = jpChars[Math.floor(Math.random() * jpChars.length)];
+    el.style.left = Math.random() * 90 + 'vw';
+    el.style.top = Math.random() * 90 + 'vh';
+    el.style.animationDelay = Math.random() * 10 + 's';
+    el.style.animationDuration = (15 + Math.random() * 10) + 's';
+    container.appendChild(el);
+  }
+})();
+
+/* =========================================================
+   TYPING EFFECT
+   ========================================================= */
+(function initTyping() {
+  const el = document.getElementById('typing');
+  const phrases = [
+    'Tempat cerita & karya aku ✨',
+    'Developer • Dreamer • Doer 🚀',
+    'Selamat datang di dunia kecil aku 💜',
+    'Jelajahi setiap sudutnya',
+  ];
+  let pI = 0, cI = 0, del = false;
+  function type() {
+    const cur = phrases[pI];
+    if (!del) {
+      el.textContent = cur.slice(0, ++cI);
+      if (cI === cur.length) { del = true; return setTimeout(type, 1800); }
+      setTimeout(type, 70);
+    } else {
+      el.textContent = cur.slice(0, --cI);
+      if (cI === 0) { del = false; pI = (pI + 1) % phrases.length; }
+      setTimeout(type, 35);
+    }
+  }
+  type();
+})();
+
+/* =========================================================
+   SCROLL TO MENU
+   ========================================================= */
+function scrollToMenu() {
+  document.getElementById('menu').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* =========================================================
+   MODAL DATA (cuma Kontak yang masih pakai modal)
+   ========================================================= */
+const modalData = {
+  contact: `
+    <h2>KONTAK</h2>
+    <p>Mari terhubung! Aku terbuka buat kolaborasi atau ngobrol santai 📬</p>
+    <h3>📧 Email</h3>
+    <p><a class="link" href="mailto:rizqimuhammadfajar5980@gmail.com">rizqimuhammadfajar5980@gmail.com</a></p>
+    <h3>🌐 Website</h3>
+    <p><a class="link" href="https://my-sinon.my.id" target="_blank">my-sinon.my.id</a></p>
+    <h3>💬 Sosial Media</h3>
+    <ul>
+      <li>Instagram: @sinon_xy</li>
+      <li>GitHub: github.com/MySinon</li>
+      <li>LinkedIn: linkedin.com/in/rizqi-muhammad-fajar-4200bb3b0</li>
+    </ul>
+  `,
+};
+
+/* =========================================================
+   MODAL LOGIC — hanya untuk card yang punya data-modal
+   ========================================================= */
+const overlay = document.getElementById('modalOverlay');
+const modalBody = document.getElementById('modalBody');
+
+function openModal(key) {
+  modalBody.innerHTML = modalData[key] || '<p>Konten belum tersedia.</p>';
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Hanya card dengan data-modal yang trigger modal
+document.querySelectorAll('.menu-card[data-modal]').forEach((card) => {
+  card.addEventListener('click', () => openModal(card.dataset.modal));
+});
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+/* =========================================================
+   3D TILT ON CARDS
+   ========================================================= */
+if (window.innerWidth > 768) {
+  document.querySelectorAll('.menu-card').forEach((card) => {
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const rx = ((y / r.height) - 0.5) * -18;
+      const ry = ((x / r.width) - 0.5) * 18;
+      card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-8px) scale(1.03)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+}
+
+/* =========================================================
+   ANIME CHARACTER — Arisu (pakai 2 gambar)
+   ========================================================= */
+(function initAnimeChar() {
+  const stage = document.getElementById('animeStage');
+  const char = document.getElementById('animeChar');
+  const bubble = document.getElementById('speechBubble');
+  const normalSrc = char.src;
+  const blinkSrc = char.dataset.blink;
+
+  const phrases = [
+    'Hai! 👋',
+    'Apa kabar? ✨',
+    'Klik menu di bawah ya!',
+    'Aku Arisu 💜',
+    'Keren kan efeknya? 😎',
+    'Dibawa ke mana nih? 😆',
+    'Suka anime apa? 🌸',
+    'Ganbatte! 💪',
+    'Onii-chan~ 😳',
+    'Nihongo jouzu desu ne~',
+  ];
+
+  /* ---------- EFEK KEDIP MATA ---------- */
+  function doBlink(duration = 150) {
+    if (!blinkSrc) return;
+    char.src = blinkSrc;
+    setTimeout(() => { char.src = normalSrc; }, duration);
+  }
+
+  function scheduleBlink() {
+    const delay = 2500 + Math.random() * 4000;
+    setTimeout(() => {
+      doBlink(140);
+      scheduleBlink();
+    }, delay);
+  }
+  setTimeout(() => { doBlink(); scheduleBlink(); }, 2000);
+
+  /* ---------- BUBBLE BICARA ---------- */
+  let bubbleTimer;
+  function say(text) {
+    bubble.textContent = text;
+    bubble.classList.add('show');
+    clearTimeout(bubbleTimer);
+    bubbleTimer = setTimeout(() => bubble.classList.remove('show'), 2200);
+  }
+
+  /* ---------- KLIK KARAKTER ---------- */
+  char.addEventListener('click', (e) => {
+    e.stopPropagation();
+    say(phrases[Math.floor(Math.random() * phrases.length)]);
+    doBlink(200);
+  });
+
+  /* ---------- MOUSE LEWAT = KEDIP ---------- */
+  char.addEventListener('mouseenter', () => doBlink(180));
+
+  /* ---------- DRAG (MOUSE) ---------- */
+  let dragging = false, startX, startY;
+  char.addEventListener('mousedown', (e) => {
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    stage.classList.add('dragging');
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    stage.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    stage.classList.remove('dragging');
+    setTimeout(() => { stage.style.transform = ''; }, 700);
+    say('Wee~ dilepas! 🎈');
+  });
+
+  /* ---------- DRAG (TOUCH) ---------- */
+  char.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    dragging = true;
+    startX = t.clientX;
+    startY = t.clientY;
+    stage.classList.add('dragging');
+  }, { passive: true });
+  document.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    const t = e.touches[0];
+    const dx = t.clientX - startX;
+    const dy = t.clientY - startY;
+    stage.style.transform = `translate(${dx}px, ${dy}px)`;
+  }, { passive: true });
+  document.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    stage.classList.remove('dragging');
+    setTimeout(() => { stage.style.transform = ''; }, 700);
+  });
+
+  /* ---------- SEMBUNYI SAAT SCROLL ---------- */
+  let lastScroll = 0;
+  document.addEventListener('scroll', () => {
+    const cur = window.scrollY;
+    if (cur > lastScroll + 50 && cur > 400) {
+      stage.classList.add('hidden-in-scroll');
+    } else if (cur < lastScroll - 30) {
+      stage.classList.remove('hidden-in-scroll');
+    }
+    lastScroll = cur;
+  }, { passive: true });
+
+  /* ---------- SALAM AWAL ---------- */
+  setTimeout(() => say('Halo! Aku Arisu ✨'), 2000);
+  setTimeout(() => say('Klik aku ya! 👆'), 5500);
+})();
+
+/* =========================================================
+   NAVBAR SMOOTH SCROLL
+   ========================================================= */
+document.querySelectorAll('.nav-links a').forEach((link) => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const t = document.querySelector(link.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+/* =========================================================
+   🎵 MUSIC — Web Audio API (J-pop chill lofi)
+   ========================================================= */
+(function initMusic() {
+  const btn = document.getElementById('musicBtn');
+  let ctx = null;
+  let masterGain = null;
+  let delayNode = null;
+  let isPlaying = false;
+  let loopTimer = null;
+
+  const N = {
+    'A3': 220.00, 'B3': 246.94, 'C4': 261.63, 'D4': 293.66,
+    'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00,
+    'B4': 493.88, 'C5': 523.25, 'D5': 587.33, 'E5': 659.25,
+    'F5': 698.46, 'G5': 783.99, 'A5': 880.00,
+    'F3': 174.61, 'G3': 196.00, 'A2': 110.00, 'C3': 130.81,
+    'E3': 164.81, 'F2': 87.31, 'G2': 98.00,
+  };
+
+  const CHORDS = [
+    { notes: ['A3', 'C4', 'E4'], bass: 'A2' },
+    { notes: ['F3', 'A3', 'C4'], bass: 'F2' },
+    { notes: ['C4', 'E4', 'G4'], bass: 'C3' },
+    { notes: ['G3', 'B3', 'D4'], bass: 'G2' },
+  ];
+
+  const MELODY = [
+    'E5', 'D5', 'C5', 'E5',
+    'G5', 'E5', 'D5', 'C5',
+    'A4', 'C5', 'D5', 'E5',
+    'D5', 'C5', 'A4', 'G4'
+  ];
+
+  const TEMPO = 0.5;
+  const BAR_DUR = 8;
+
+  function playNote(freq, startTime, duration, type, vol) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+
+    gain.gain.setValueAtTime(0, startTime);
+    gain.gain.linearRampToValueAtTime(vol, startTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(vol * 0.6, startTime + duration * 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+    osc.connect(gain);
+    gain.connect(masterGain);
+
+    if (freq > 400 && delayNode) {
+      gain.connect(delayNode);
+    }
+
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.05);
+  }
+
+  function scheduleBar(startTime) {
+    CHORDS.forEach((chord, ci) => {
+      const cs = startTime + ci * 2;
+      chord.notes.forEach((n, ni) => {
+        playNote(N[n], cs + ni * 0.15, 1.8, 'triangle', 0.10);
+        playNote(N[n] * 2, cs + ni * 0.15, 1.2, 'sine', 0.03);
+      });
+      playNote(N[chord.bass], cs, 1.9, 'sine', 0.18);
+    });
+
+    MELODY.forEach((n, i) => {
+      const t = startTime + i * TEMPO;
+      playNote(N[n], t, 0.45, 'triangle', 0.09);
+      playNote(N[n] * 2, t + 0.05, 0.3, 'sine', 0.025);
+    });
+  }
+
+  function loop() {
+    if (!isPlaying) return;
+    const now = ctx.currentTime + 0.1;
+    scheduleBar(now);
+    loopTimer = setTimeout(loop, BAR_DUR * 1000 - 100);
+  }
+
+  function initAudio() {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    masterGain = ctx.createGain();
+    masterGain.gain.value = 0.6;
+    masterGain.connect(ctx.destination);
+
+    delayNode = ctx.createDelay(1);
+    delayNode.delayTime.value = 0.4;
+    const fb = ctx.createGain();
+    fb.gain.value = 0.3;
+    const wet = ctx.createGain();
+    wet.gain.value = 0.35;
+
+    delayNode.connect(fb);
+    fb.connect(delayNode);
+    delayNode.connect(wet);
+    wet.connect(masterGain);
+  }
+
+  function startMusic() {
+    if (!ctx) initAudio();
+    if (ctx.state === 'suspended') ctx.resume();
+    isPlaying = true;
+    btn.classList.add('playing');
+    loop();
+  }
+
+  function stopMusic() {
+    isPlaying = false;
+    btn.classList.remove('playing');
+    clearTimeout(loopTimer);
+    if (masterGain) {
+      const now = ctx.currentTime;
+      masterGain.gain.cancelScheduledValues(now);
+      masterGain.gain.setValueAtTime(masterGain.gain.value, now);
+      masterGain.gain.linearRampToValueAtTime(0.0001, now + 0.4);
+      setTimeout(() => {
+        if (!isPlaying && masterGain) masterGain.gain.value = 0.6;
+      }, 500);
+    }
+  }
+
+  btn.addEventListener('click', () => {
+    if (isPlaying) stopMusic();
+    else startMusic();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && ctx && isPlaying && ctx.state === 'suspended') {
+      ctx.resume();
+    }
+  });
+})();
+</script>
+</body>
+</html>
